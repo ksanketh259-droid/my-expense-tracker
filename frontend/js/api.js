@@ -3,13 +3,11 @@
 
 let supa = null;
 
-// IMPORTANT:
-// Replace this URL after deploying your backend.
-// Example: https://my-expense-api.onrender.com
+// Backend URL
 const BACKEND_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : 'https://YOUR-BACKEND-URL';
+    : 'https://my-expense-tracker-ucne.onrender.com';
 
 const API_BASE_URL = BACKEND_URL.replace(/\/+$/, '');
 
@@ -22,9 +20,7 @@ async function initSupabase() {
   const cfg = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(
-      cfg.error || 'Could not load app settings.'
-    );
+    throw new Error(cfg.error || 'Could not load app settings.');
   }
 
   if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
@@ -81,31 +77,23 @@ async function api(path, options = {}) {
     throw new Error('Please log in.');
   }
 
-  const res = await fetch(
-    `${API_BASE_URL}/api${path}`,
-    {
-      method: options.method || 'GET',
-
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-
-      body: options.body
-        ? JSON.stringify(options.body)
-        : undefined
-    }
-  );
+  const res = await fetch(`${API_BASE_URL}/api${path}`, {
+    method: options.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: options.body
+      ? JSON.stringify(options.body)
+      : undefined
+  });
 
   const body = await res.json().catch(() => ({}));
 
   if (res.status === 401) {
     await client.auth.signOut();
     window.location.href = 'login.html';
-
-    throw new Error(
-      body.error || 'Please log in again.'
-    );
+    throw new Error(body.error || 'Please log in again.');
   }
 
   if (!res.ok) {
