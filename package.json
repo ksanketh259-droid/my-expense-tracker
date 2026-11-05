@@ -1,0 +1,20 @@
+{
+  "name": "my-expense-tracker",
+  "version": "1.0.0",
+  "description": "Multi-user expense tracker: HTML/CSS/JS frontend, Express API, Supabase (Auth + PostgreSQL with Row Level Security).",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "node --watch backend/src/server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}

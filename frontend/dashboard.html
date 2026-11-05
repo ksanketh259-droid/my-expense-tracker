@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - My Expense Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme.js"></script>
+</head>
+<body data-page="dashboard">
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a class="brand" href="dashboard.html"><span class="brand-mark">E</span> Expense Tracker</a>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" data-view="transactions">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          Transactions
+        </button>
+        <button class="nav-btn" data-view="reports">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Reports
+        </button>
+        <button class="nav-btn" data-view="profile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="sidebar-email" id="sidebarEmail"></div>
+        <button class="btn btn-secondary btn-block" id="logoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 id="pageTitle">Dashboard</h1>
+        <button class="icon-btn" data-theme-toggle aria-label="Toggle light and dark mode">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="btn btn-add" id="addBtn" aria-label="Add transaction">+ <span>Add transaction</span></button>
+      </header>
+
+      <main class="content">
+        <div id="loading" class="loading-bar" role="status" aria-label="Loading"></div>
+        <div id="pageError" class="alert alert-error hidden" role="alert"></div>
+
+        <!-- DASHBOARD -->
+        <section id="view-dashboard" class="view">
+          <div class="cards">
+            <div class="card stat"><div class="label">Total balance</div><div class="value" id="sBalance">-</div></div>
+            <div class="card stat income"><div class="label">Total income</div><div class="value" id="sIncome">-</div></div>
+            <div class="card stat expense"><div class="label">Total expenses</div><div class="value" id="sExpense">-</div></div>
+            <div class="card stat"><div class="label">This month's spending</div><div class="value" id="sMonth">-</div></div>
+          </div>
+          <div class="panel-grid">
+            <div class="card"><h2>Monthly income vs expenses (last 6 months)</h2><div class="chart-box"><canvas id="monthlyChart" role="img" aria-label="Bar chart of monthly income and expenses"></canvas></div></div>
+            <div class="card"><h2>Spending by category</h2><div class="chart-box" id="catBox"><canvas id="categoryChart" role="img" aria-label="Doughnut chart of spending by category"></canvas></div></div>
+          </div>
+          <div class="card">
+            <h2>Recent transactions</h2>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th class="num">Amount</th></tr></thead>
+              <tbody id="recentBody"></tbody>
+            </table></div>
+            <div id="recentEmpty" class="empty hidden">
+              <h3>No transactions yet</h3>
+              <p>Add your first income or expense to see your dashboard come alive.</p>
+              <button class="btn" data-open-add>Add transaction</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- TRANSACTIONS -->
+        <section id="view-transactions" class="view hidden">
+          <div class="card">
+            <form id="filterForm" class="filters" role="search" aria-label="Filter transactions">
+              <div class="field"><label for="fSearch">Search description</label><input id="fSearch" type="search" placeholder="e.g. lunch"></div>
+              <div class="field"><label for="fType">Type</label>
+                <select id="fType"><option value="">All</option><option value="income">Income</option><option value="expense">Expense</option></select></div>
+              <div class="field"><label for="fCategory">Category</label><select id="fCategory"><option value="">All</option></select></div>
+              <div class="field"><label for="fMonth">Month</label><input id="fMonth" type="month"></div>
+              <div class="field"><label for="fFrom">From date</label><input id="fFrom" type="date"></div>
+              <div class="field"><label for="fTo">To date</label><input id="fTo" type="date"></div>
+              <div class="field"><button type="button" class="btn btn-secondary" id="clearFilters">Clear filters</button></div>
+            </form>
+            <p class="sub-note" style="margin-bottom:10px">If a month is chosen, the from/to dates are ignored.</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Method</th><th>Type</th><th class="num">Amount</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="txBody"></tbody>
+            </table></div>
+            <div id="txEmpty" class="empty hidden">
+              <h3 id="txEmptyTitle">No transactions found</h3>
+              <p id="txEmptyText"></p>
+              <button class="btn" id="txEmptyBtn" data-open-add>Add transaction</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section id="view-reports" class="view hidden">
+          <div class="report-actions no-print">
+            <div class="field" style="margin:0;min-width:180px"><label for="rMonth">Report period</label><select id="rMonth"><option value="">All time</option></select></div>
+            <button class="btn" id="csvBtn">Download CSV</button>
+            <button class="btn btn-secondary" id="printBtn">Print report</button>
+          </div>
+          <div class="card" style="margin-bottom:16px">
+            <h2>Monthly income and expenses</h2>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Month</th><th class="num">Income</th><th class="num">Expenses</th><th class="num">Net</th></tr></thead>
+              <tbody id="repMonthBody"></tbody>
+            </table></div>
+            <div id="repMonthEmpty" class="empty hidden"><p>No data for this period.</p></div>
+          </div>
+          <div class="card">
+            <h2>Category-wise spending</h2>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Category</th><th class="num">Spent</th><th class="num">Share</th></tr></thead>
+              <tbody id="repCatBody"></tbody>
+            </table></div>
+            <div id="repCatEmpty" class="empty hidden"><p>No expenses for this period.</p></div>
+          </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="view-profile" class="view hidden">
+          <div class="card" style="max-width:560px">
+            <h2>Your profile</h2>
+            <div class="profile-row"><span class="muted">Email</span><strong id="pEmail"></strong></div>
+            <div class="profile-row"><span class="muted">Account created</span><span id="pCreated"></span></div>
+            <div class="profile-row"><span class="muted">Total transactions</span><span id="pCount"></span></div>
+            <p class="sub-note" style="margin-top:14px">Your records are protected by database Row Level Security: no other user can read or change them.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <div class="overlay" id="overlay"></div>
+  </div>
+
+  <!-- Add / edit dialog -->
+  <dialog id="txDialog" aria-labelledby="txDialogTitle">
+    <form id="txForm" class="dialog-body" novalidate>
+      <h2 id="txDialogTitle">Add transaction</h2>
+      <div class="alert alert-error hidden" id="formError" role="alert"></div>
+      <div class="type-toggle" role="radiogroup" aria-label="Transaction type">
+        <label><input type="radio" name="type" value="expense" checked><span class="t-expense">Expense</span></label>
+        <label><input type="radio" name="type" value="income"><span>Income</span></label>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label for="amount">Amount (INR)</label><input id="amount" name="amount" type="number" step="0.01" min="0.01" inputmode="decimal" required><span class="error-text" id="amountError"></span></div>
+        <div class="field"><label for="date">Date</label><input id="date" name="date" type="date" required><span class="error-text" id="dateError"></span></div>
+      </div>
+      <div class="field"><label for="description">Description</label><input id="description" name="description" type="text" maxlength="120" required><span class="error-text" id="descriptionError"></span></div>
+      <div class="grid-2">
+        <div class="field"><label for="category">Category</label><select id="category" name="category"></select></div>
+        <div class="field"><label for="method">Payment method</label><select id="method" name="payment_method"></select></div>
+      </div>
+      <div class="field"><label for="notes">Notes (optional)</label><textarea id="notes" name="notes" maxlength="500"></textarea></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn" id="saveBtn">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Delete confirmation -->
+  <dialog id="confirmDialog" aria-labelledby="confirmTitle">
+    <div class="dialog-body">
+      <h2 id="confirmTitle">Delete this transaction?</h2>
+      <p class="muted" id="confirmText" style="margin-bottom:18px">This cannot be undone.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-secondary" id="confirmNo">Cancel</button>
+        <button class="btn btn-danger" id="confirmYes">Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
